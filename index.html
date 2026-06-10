@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Procedural Terrain Generator</title>
+        <script src="https://cdn.jsdelivr.net/npm/p5@1.11.8/lib/p5.min.js"></script>
+        <script src="terrain.js"></script>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <h1>How Do Different Noise Algorithms Affect The Realism
+            And Characteristics Of Procedurally Generated Terrain?
+        </h1>
+
+        <div class="main-container">
+
+            <div class="control-panel">
+
+                <h2>Controls</h2>
+
+            <label for="scaleSlider">Scale</label>
+
+            <input
+            type="range"
+            id="scaleSlider"
+            min="0.01"
+            max="0.20"
+            step="0.01"
+            value="0.05">
+
+            <label for="heightSlider">Height</label>
+
+            <input
+            type="range"
+            id="heightSlider"
+            min="50"
+            max="300"
+            step="10"
+            value="100">
+
+            <label for="octaveSlider">Octaves</label>
+
+            <input
+            type="range"
+            id="octaveSlider"
+            min="1"
+            max="8"
+            step="1"
+            value="4">
+
+            <label for="persistanceSlider">Persistance</label>
+
+            <input
+            type="range"
+            id="persistanceSlider"
+            min="0.01"
+            max="1"
+            step="0.1"
+            value="0.5">
+
+        <h2>Current Values:</h2>
+
+        <p>Noise Type: <span id="noiseTypeValue"></span></p>
+        <p>Scale: <span id = "scaleValue"></span></p>
+        <p>Height: <span id = "heightValue"></span></p>
+        <p>Octaves: <span id = "octaveValue"></span></p>
+        <p>Persistance: <span id = "persistanceValue"></span></p>
+
+        <h2>Noise Type</h2>
+
+        <button id="perlinBtn">Perlin Noise</button>
+        <button id="terraceBtn">Terraced Noise</button>
+        <button id="valueBtn">White Noise</button>
+
+        </div>
+
+        <div id="canvas-container"></div>
+
+        </div>
+
+        <footer id="footer">Made By: Nattaya Trigg, St Dominics Catholic College, Yr 9</footer>
+    </body>
+</html>
