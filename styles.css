@@ -20,7 +20,7 @@ h1 {
 
 .main-container {
     display: flex;
-    flex-content: center;
+    justify-content: center;
     align-items: flex-start;
     gap: 40px;
 
@@ -93,7 +93,7 @@ footer {
     color: #8fbce6;
 }
 
-    @media (max-width: 1000) {
+    @media (max-width: 1000px) {
 
     .main-container {
         flex-direction: column;
