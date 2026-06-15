@@ -97,13 +97,22 @@ button:hover {
     max-width: 95vw;
     height: 600px;
     max-height: 60vh;
+    
     display: flex;
     justify-content: center;
     align-items: center;
+    
     background-color: #08111b;
+    
     border-radius: 15px;
+    
     padding: 10px;
-    box-shadow: 0 0 30px rgba(0, 150, 255, 0.3);
+
+    border: 1px solid rgba(100, 180, 255, 0.25);
+    
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.3),
+        0 0 40px rgba(0, 150, 255, 0.2),
+        inset 0 0 20px rgba(0, 150, 255, 0.2);
 }
     
 canvas {
