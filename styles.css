@@ -1,3 +1,14 @@
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    
+    background-image: radial-gradient(white 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.15;
+    pointer-events: none;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -11,17 +22,6 @@ body {
 
     color: white;
     font-family: Arial, sans-serif;
-}
-
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    
-    background-image: radial-gradient(white 1px, transparent 1px);
-    background-size: 60px 60px;
-    opacity: 0.15;
-    pointer-events: none;
 }
 
 h1 {
