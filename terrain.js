@@ -48,8 +48,6 @@ function draw() {
     document.getElementById("persistanceValue").textContent = persistance;
 
     translate(-450, 0, -450);
-
-    // 🌊 OCEAN FIRST (only ONE ocean)
     let wave = sin(frameCount * 0.05) * 2;
     let waterLevel = 90 + sin(frameCount * 0.02) * 5;
 
@@ -62,7 +60,6 @@ function draw() {
     plane(3000, 3000);
     pop();
 
-    // 🏔 TERRAIN
     stroke(0);
 
     for (let z = 0; z < 30; z++) {
@@ -73,10 +70,21 @@ function draw() {
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
-            if (h1 < 90) fill(0, 0, 255);
-            else if (h1 < 120) fill(0, 255, 0);
-            else if (h1 < 150) fill(120);
-            else fill(255);
+            if (h1 < waterLevel - 5) {
+        fill(0, 80, 200); 
+        }
+        else if (h1 < waterLevel + 5) {
+        fill(194, 178, 128); 
+        }
+        else if (h1 < 120) {
+        fill(34, 139, 34); 
+        }
+        else if (h1 < 150) {
+        fill(120); 
+        }
+        else {
+        fill(245); 
+        }
 
             vertex(x * 30, -h1, z * 30);
             vertex(x * 30, -h2, (z + 1) * 30);
