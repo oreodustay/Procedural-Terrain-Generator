@@ -7,10 +7,8 @@ let persistence = 0.5;
 
 let noiseMode = "perlin";
 
-let waterLevel = 90;
-
 function setup() {
-    let canvas = createCanvas(800, 600, WEBGL);
+    const canvas = createCanvas(800, 600, WEBGL);
     canvas.parent("canvas-container");
 
     setupButtons();
@@ -27,26 +25,25 @@ function setupButtons() {
 }
 
 function draw() {
-    background(10, 20, 35);
+    background(135, 190, 255); // simple sky (no effects)
 
     orbitControl();
 
-    updateUI();
+    updateValues();
 
-    waterLevel = 90 + sin(frameCount * 0.02) * 5;
+    translate(-450, 0, -450);
 
-    drawFog();
     drawTerrain();
     drawWater();
 }
 
-/* ---------------- UI SAFE UPDATE ---------------- */
+/* ---------------- UI ---------------- */
 
-function updateUI() {
-    noiseScale = getSlider("scaleSlider", noiseScale);
-    heightScale = getSlider("heightSlider", heightScale);
-    octaves = getSlider("octaveSlider", octaves);
-    persistence = getSlider("persistanceSlider", persistence);
+function updateValues() {
+    noiseScale = getVal("scaleSlider", noiseScale);
+    heightScale = getVal("heightSlider", heightScale);
+    octaves = getVal("octaveSlider", octaves);
+    persistence = getVal("persistanceSlider", persistence);
 
     setText("noiseTypeValue", noiseMode);
     setText("scaleValue", noiseScale);
@@ -55,7 +52,7 @@ function updateUI() {
     setText("persistanceValue", persistence);
 }
 
-function getSlider(id, fallback) {
+function getVal(id, fallback) {
     const el = document.getElementById(id);
     return el ? Number(el.value) : fallback;
 }
@@ -65,39 +62,11 @@ function setText(id, val) {
     if (el) el.textContent = val;
 }
 
-/* ---------------- FOG ---------------- */
-
-function drawFog() {
-    push();
-    noStroke();
-    fill(200, 220, 255, 18);
-    translate(0, -50, 0);
-    rotateX(HALF_PI);
-    plane(6000, 6000);
-    pop();
-}
-
-/* ---------------- WATER ---------------- */
-
-function drawWater() {
-    push();
-    noStroke();
-    fill(0, 140, 255, 140);
-
-    translate(0, waterLevel, 0);
-    rotateX(HALF_PI);
-    plane(6000, 6000);
-
-    pop();
-}
-
 /* ---------------- TERRAIN ---------------- */
 
 function drawTerrain() {
     stroke(0);
-
-    translate(-450, 0, -450);
-
+    
     for (let z = 0; z < 30; z++) {
         beginShape(TRIANGLE_STRIP);
 
@@ -106,10 +75,10 @@ function drawTerrain() {
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
-            setTerrainColor(h1);
+            setColor(h1);
             vertex(x * 30, -h1, z * 30);
 
-            setTerrainColor(h2);
+            setColor(h2);
             vertex(x * 30, -h2, (z + 1) * 30);
         }
 
@@ -117,14 +86,32 @@ function drawTerrain() {
     }
 }
 
+/* ---------------- WATER ---------------- */
+
+function drawWater() {
+    let waterLevel = 90;
+
+    push();
+    noStroke();
+    fill(0, 120, 255, 160);
+
+    translate(0, waterLevel, 0);
+    rotateX(HALF_PI);
+    plane(2000, 2000);
+
+    pop();
+}
+
 /* ---------------- COLORS ---------------- */
 
-function setTerrainColor(h) {
-    if (h < waterLevel - 5) fill(0, 60, 160);
-    else if (h < waterLevel + 5) fill(210, 190, 140);
-    else if (h < 120) fill(40, 160, 60);
+function setColor(h) {
+    let waterLevel = 90;
+
+    if (h < waterLevel - 5) fill(0, 70, 180);
+    else if (h < waterLevel + 5) fill(194, 178, 128);
+    else if (h < 120) fill(34, 139, 34);
     else if (h < 150) fill(120);
-    else fill(240);
+    else fill(245);
 }
 
 /* ---------------- HEIGHT ---------------- */
@@ -150,12 +137,15 @@ function getHeight(x, z) {
         }
 
         h += n * amp;
+
         amp *= persistence;
         freq *= 2;
     }
 
     return h;
 }
+
+/* ---------------- WHITE NOISE ---------------- */
 
 function whiteNoise(x, z) {
     let n = x * 374761 + z * 668265;
