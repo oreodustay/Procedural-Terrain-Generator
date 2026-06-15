@@ -32,25 +32,13 @@ function setup() {
 function draw() {
 
     background(220);
-    
-    let wave = sin(frameCount * 0.05) * 2;
-    let waterLevel = 90 + sin(frameCount * 0.02) * 5;
 
-    push();
-noStroke();
-fill(0, 120, 255, 160);
+    orbitControl();
 
-translate(0, waterLevel + wave, 0);
-rotateX(HALF_PI);
-plane(3000, 3000);
-pop();
-
+    // sliders first
     noiseScale = Number(document.getElementById("scaleSlider").value);
-
     heightScale = Number(document.getElementById("heightSlider").value);
-
     octaves = Number(document.getElementById("octaveSlider").value);
-
     persistance = Number(document.getElementById("persistanceSlider").value);
 
     document.getElementById("noiseTypeValue").textContent = noiseMode;
@@ -59,48 +47,44 @@ pop();
     document.getElementById("octaveValue").textContent = octaves;
     document.getElementById("persistanceValue").textContent = persistance;
 
-    background(220);
-
-    //Lets you move around and pan.
-    orbitControl();
-
-    //Moves the entire world.
     translate(-450, 0, -450);
 
+    // 🌊 OCEAN FIRST (only ONE ocean)
+    let wave = sin(frameCount * 0.05) * 2;
+    let waterLevel = 90 + sin(frameCount * 0.02) * 5;
+
+    push();
+    noStroke();
+    fill(0, 140, 255, 140);
+
+    translate(450, waterLevel + wave, 450);
+    rotateX(HALF_PI);
+    plane(3000, 3000);
+    pop();
+
+    // 🏔 TERRAIN
     stroke(0);
 
-    for(let z = 0; z < 30; z++) {
-
+    for (let z = 0; z < 30; z++) {
         beginShape(TRIANGLE_STRIP);
 
-        for(let x = 0; x < 30; x++) {
+        for (let x = 0; x < 30; x++) {
 
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
-            //Colouring! Based on height
-            if(h1 < 90) {
-
-                fill(0, 0, 255); //ocean
-            }
-            else if(h1 < 120) {
-                fill(0, 255, 0); //grass
-            }
-            else if(h1 < 150) {
-                fill(120, 120, 120); //rock
-            }
-            else {
-                fill(255); //snow?? idk but we have snow i guess. dunno what else to put.
-            }
+            if (h1 < 90) fill(0, 0, 255);
+            else if (h1 < 120) fill(0, 255, 0);
+            else if (h1 < 150) fill(120);
+            else fill(255);
 
             vertex(x * 30, -h1, z * 30);
-
             vertex(x * 30, -h2, (z + 1) * 30);
-
         }
 
         endShape();
     }
+}
 
     push();
 
