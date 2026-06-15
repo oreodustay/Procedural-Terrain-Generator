@@ -32,17 +32,18 @@ function setup() {
 function draw() {
 
     background(220);
-
+    
+    let wave = sin(frameCount * 0.05) * 2;
     let waterLevel = 90 + sin(frameCount * 0.02) * 5;
 
     push();
-    fill(0, 80, 200, 150);
-    noStroke();
-    translate(0, waterLevel, 0);
+noStroke();
+fill(0, 120, 255, 160);
 
-    rotateX(HALF_PI);
-    plane(2000, 2000);
-    pop();
+translate(0, waterLevel + wave, 0);
+rotateX(HALF_PI);
+plane(3000, 3000);
+pop();
 
     noiseScale = Number(document.getElementById("scaleSlider").value);
 
