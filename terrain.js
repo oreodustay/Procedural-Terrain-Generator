@@ -7,6 +7,8 @@ let persistence = 0.5;
 
 let noiseMode = "perlin";
 
+let waterLevel = 90;
+
 function setup() {
     let canvas = createCanvas(800, 600, WEBGL);
     canvas.parent("canvas-container");
@@ -29,30 +31,22 @@ function draw() {
 
     orbitControl();
 
-    updateSliders();
+    updateUI();
 
-    // 🌫️ Fog layer (depth atmosphere)
+    waterLevel = 90 + sin(frameCount * 0.02) * 5;
+
     drawFog();
-
-    translate(-450, 0, -450);
-
-    // 🌊 Water animation
-    drawWater();
-
-    // 🏔️ Terrain
     drawTerrain();
+    drawWater();
 }
 
-function updateSliders() {
-    const scaleSlider = document.getElementById("scaleSlider");
-    const heightSlider = document.getElementById("heightSlider");
-    const octaveSlider = document.getElementById("octaveSlider");
-    const persistenceSlider = document.getElementById("persistanceSlider");
+/* ---------------- UI SAFE UPDATE ---------------- */
 
-    noiseScale = scaleSlider ? Number(scaleSlider.value) : noiseScale;
-    heightScale = heightSlider ? Number(heightSlider.value) : heightScale;
-    octaves = octaveSlider ? Number(octaveSlider.value) : octaves;
-    persistence = persistenceSlider ? Number(persistenceSlider.value) : persistence;
+function updateUI() {
+    noiseScale = getSlider("scaleSlider", noiseScale);
+    heightScale = getSlider("heightSlider", heightScale);
+    octaves = getSlider("octaveSlider", octaves);
+    persistence = getSlider("persistanceSlider", persistence);
 
     setText("noiseTypeValue", noiseMode);
     setText("scaleValue", noiseScale);
@@ -61,42 +55,48 @@ function updateSliders() {
     setText("persistanceValue", persistence);
 }
 
-function setText(id, value) {
+function getSlider(id, fallback) {
     const el = document.getElementById(id);
-    if (el) el.textContent = value;
+    return el ? Number(el.value) : fallback;
 }
+
+function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
+
+/* ---------------- FOG ---------------- */
 
 function drawFog() {
     push();
     noStroke();
-    fill(200, 220, 255, 20);
+    fill(200, 220, 255, 18);
+    translate(0, -50, 0);
+    rotateX(HALF_PI);
+    plane(6000, 6000);
+    pop();
+}
 
-    translate(0, -40 + sin(frameCount * 0.01) * 5, 0);
+/* ---------------- WATER ---------------- */
+
+function drawWater() {
+    push();
+    noStroke();
+    fill(0, 140, 255, 140);
+
+    translate(0, waterLevel, 0);
     rotateX(HALF_PI);
     plane(6000, 6000);
 
     pop();
 }
 
-function drawWater() {
-    let wave = sin(frameCount * 0.05) * 2;
-    let waterLevel = 90 + sin(frameCount * 0.02) * 5;
-
-    push();
-    noStroke();
-    fill(0, 140, 255, 140);
-
-    translate(0, waterLevel + wave, 0);
-    rotateX(HALF_PI);
-    plane(5000, 5000);
-
-    pop();
-}
+/* ---------------- TERRAIN ---------------- */
 
 function drawTerrain() {
-    let waterLevel = 90 + sin(frameCount * 0.02) * 5;
-
     stroke(0);
+
+    translate(-450, 0, -450);
 
     for (let z = 0; z < 30; z++) {
         beginShape(TRIANGLE_STRIP);
@@ -106,10 +106,10 @@ function drawTerrain() {
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
-            drawColor(h1, waterLevel);
+            setTerrainColor(h1);
             vertex(x * 30, -h1, z * 30);
 
-            drawColor(h2, waterLevel);
+            setTerrainColor(h2);
             vertex(x * 30, -h2, (z + 1) * 30);
         }
 
@@ -117,51 +117,44 @@ function drawTerrain() {
     }
 }
 
-function drawColor(h, waterLevel) {
-    if (h < waterLevel - 5) {
-        fill(0, 70, 180); // deep water
-    } 
-    else if (h < waterLevel + 5) {
-        fill(194, 178, 128); // beach
-    } 
-    else if (h < 120) {
-        fill(34, 139, 34); // grass
-    } 
-    else if (h < 150) {
-        fill(120); // rock
-    } 
-    else {
-        fill(245); // snow
-    }
+/* ---------------- COLORS ---------------- */
+
+function setTerrainColor(h) {
+    if (h < waterLevel - 5) fill(0, 60, 160);
+    else if (h < waterLevel + 5) fill(210, 190, 140);
+    else if (h < 120) fill(40, 160, 60);
+    else if (h < 150) fill(120);
+    else fill(240);
 }
 
+/* ---------------- HEIGHT ---------------- */
+
 function getHeight(x, z) {
-    let height = 0;
-    let amplitude = heightScale;
-    let frequency = noiseScale;
+    let h = 0;
+    let amp = heightScale;
+    let freq = noiseScale;
 
     for (let i = 0; i < octaves; i++) {
 
-        let value;
+        let n;
 
         if (noiseMode === "perlin") {
-            value = noise(x * frequency + seed, z * frequency + seed);
+            n = noise(x * freq + seed, z * freq + seed);
         } 
         else if (noiseMode === "terraced") {
-            value = noise(x * frequency + seed, z * frequency + seed);
-            value = Math.floor(value * 4) / 4;
+            n = noise(x * freq + seed, z * freq + seed);
+            n = Math.floor(n * 4) / 4;
         } 
         else {
-            value = whiteNoise(x * frequency + seed, z * frequency + seed);
+            n = whiteNoise(x * freq + seed, z * freq + seed);
         }
 
-        height += value * amplitude;
-
-        amplitude *= persistence;
-        frequency *= 2;
+        h += n * amp;
+        amp *= persistence;
+        freq *= 2;
     }
 
-    return height;
+    return h;
 }
 
 function whiteNoise(x, z) {
