@@ -34,15 +34,32 @@ h1 {
 .control-panel {
     width: 320px;
 
-    background: rgba(16, 38, 61, 0.75);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+        180deg,
+        rgba(25, 55, 85, 0.9),
+        rgba(12, 28, 45, 0.85)
+    );
+
+    backdrop-filter: blur(15px);
+
+    border: 1px solid rgba(120, 190, 255, 0.2);
+
     border-radius: 20px;
+
     padding: 20px;
 
     box-shadow:
-        0 0 25px rgba(0, 150, 255, 0.15),
-        inset 0 0 25px rgba(255, 255, 255, 0.03);
+        0 0 20px rgba(0, 150, 255, 0.2),
+        0 0 40px rgba(0, 150, 255, 0.1),
+        inset 0 0 20px rgba(255, 255, 255, 0.03);
+}
+
+.control-panel:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 0 25px rgba(0, 150, 255, 0.3),
+        0 0 50px rgba(0, 150, 255, 0.15);
 }
 
 .control-panel h2 {
@@ -68,6 +85,8 @@ button {
     font-size: 14px;
     cursor: pointer;
     transition: 0.2s ease;
+
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
 button:hover {
