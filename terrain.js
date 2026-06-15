@@ -31,6 +31,8 @@ function setup() {
 
 function draw() {
 
+    background(220);
+
     let waterLevel = 90 + sin(frameCount * 0.02) * 5;
 
     push();
