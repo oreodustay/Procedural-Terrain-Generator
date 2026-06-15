@@ -2,29 +2,6 @@
     box-sizing: border-box;
 }
 
-body::before {
-    margin: 0;
-    min-height: 100vh;
-    overflow-x: hidden;
-
-    background:
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08) 1px, transparent 2px),
-        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.06) 1px, transparent 2px),
-        radial-gradient(circle at 60% 80%, rgba(255, 255, 255, 0.08) 1px, transparent 2px),
-        radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.05) 1px, transparent 2px),
-        linear-gradient(180deg, #071726, #0a1d30);
-
-    background-size:
-        200px 200px,
-        300px 300px,
-        250px 250px,
-        180px 180px,
-        100% 100%;
-
-    color: white;
-    font-family: Arial, sans-serif;
-}
-
 body {
     margin: 0;
     min-height: 100vh;
@@ -107,12 +84,8 @@ button:hover {
     border-radius: 15px;
     
     padding: 10px;
-
-    border: 1px solid rgba(100, 180, 255, 0.25);
     
-    box-shadow: 0 0 20px rgba(0, 150, 255, 0.3),
-        0 0 40px rgba(0, 150, 255, 0.2),
-        inset 0 0 20px rgba(0, 150, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
 }
     
 canvas {
