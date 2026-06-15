@@ -14,8 +14,7 @@ function setup() {
     setupButtons();
 }
 
-    function setupButtons() {
-        //buttons here
+function setupButtons() {
     document.getElementById("perlinBtn").onclick = () => {
         noiseMode = "perlin";
     };
@@ -27,14 +26,14 @@ function setup() {
     document.getElementById("valueBtn").onclick = () => {
         noiseMode = "white";
     };
-    }
+}
 
 function draw() {
 
-    background(220);
-
+    background(10, 20, 35);
     orbitControl();
 
+    // 🌫 FOG LAYER
     let fogY = -40 + sin(frameCount * 0.01) * 5;
 
     push();
@@ -45,7 +44,7 @@ function draw() {
     plane(5000, 5000);
     pop();
 
-    // sliders first
+    // sliders
     noiseScale = Number(document.getElementById("scaleSlider").value);
     heightScale = Number(document.getElementById("heightSlider").value);
     octaves = Number(document.getElementById("octaveSlider").value);
@@ -58,18 +57,20 @@ function draw() {
     document.getElementById("persistanceValue").textContent = persistance;
 
     translate(-450, 0, -450);
+
+    // 🌊 OCEAN
     let wave = sin(frameCount * 0.05) * 2;
     let waterLevel = 90 + sin(frameCount * 0.02) * 5;
 
     push();
     noStroke();
-    fill(0, 140, 255, 140);
-
+    fill(0, 120 + sin(frameCount * 0.02) * 20, 255, 160);
     translate(450, waterLevel + wave, 450);
     rotateX(HALF_PI);
     plane(3000, 3000);
     pop();
 
+    // 🏔 TERRAIN
     stroke(0);
 
     for (let z = 0; z < 30; z++) {
@@ -80,21 +81,11 @@ function draw() {
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
-            if (h1 < waterLevel - 5) {
-        fill(0, 80, 200); 
-        }
-        else if (h1 < waterLevel + 5) {
-        fill(194, 178, 128); 
-        }
-        else if (h1 < 120) {
-        fill(34, 139, 34); 
-        }
-        else if (h1 < 150) {
-        fill(120); 
-        }
-        else {
-        fill(245); 
-        }
+            if (h1 < waterLevel - 5) fill(0, 80, 200);
+            else if (h1 < waterLevel + 5) fill(194, 178, 128);
+            else if (h1 < 120) fill(34, 139, 34);
+            else if (h1 < 150) fill(120);
+            else fill(245);
 
             vertex(x * 30, -h1, z * 30);
             vertex(x * 30, -h2, (z + 1) * 30);
@@ -104,60 +95,41 @@ function draw() {
     }
 }
 
-    push();
-
-    fill(0, 80, 200, 150);
-    noStroke();
-
-    translate(0, 90, 0);
-
-    rotateX(HALF_PI);
-    plane(2000, 2000);
-
-    pop();
-}
-
 function getHeight(x, z) {
 
-let height = 0;
+    let height = 0;
+    let amplitude = heightScale;
+    let frequency = noiseScale;
 
-let amplitude = heightScale;
-let frequency = noiseScale;
+    for (let octave = 0; octave < octaves; octave++) {
 
-for(let octave = 0; octave < octaves; octave++) {
+        let noiseValue;
 
-    let noiseValue;
+        if (noiseMode === "perlin") {
+            noiseValue = noise(x * frequency + seed, z * frequency + seed);
 
-    if(noiseMode === "perlin") {
+        } else if (noiseMode === "terraced") {
+            noiseValue = noise(x * frequency + seed, z * frequency + seed);
+            noiseValue = Math.floor(noiseValue * 3) / 3;
 
-        noiseValue = noise(x * frequency + seed, z * frequency + seed);
+        } else {
+            noiseValue = whiteNoise(
+                x * frequency + seed,
+                z * frequency + seed
+            );
+        }
 
-    } else if(noiseMode === "terraced") {
+        height += noiseValue * amplitude;
 
-        noiseValue = noise(x * frequency + seed, z * frequency + seed);
-
-        noiseValue = Math.floor(noiseValue * 3) / 3;
-
-    } else {
-        noiseValue = whiteNoise(
-            x * frequency + seed, z * frequency + seed
-        );
+        amplitude *= persistance;
+        frequency *= 2;
     }
 
-
-    height += noiseValue * amplitude;
-
-    amplitude *= persistance;
-    frequency *= 2;
-
+    return height;
 }
 
-return height;
-}
-
-function whiteNoise(x,z) {
+function whiteNoise(x, z) {
     let n = x * 374761 + z * 668265;
     n = Math.sin(n) * 43758.5453;
-
     return n - Math.floor(n);
 }
