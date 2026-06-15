@@ -3,7 +3,7 @@ let seed = 1000;
 let noiseScale = 0.05;
 let heightScale = 100;
 let octaves = 4;
-let persistance = 0.5;
+let persistence = 0.5;
 
 let noiseMode = "perlin";
 
@@ -15,62 +15,87 @@ function setup() {
 }
 
 function setupButtons() {
-    document.getElementById("perlinBtn").onclick = () => {
-        noiseMode = "perlin";
-    };
+    const perlinBtn = document.getElementById("perlinBtn");
+    const terraceBtn = document.getElementById("terraceBtn");
+    const valueBtn = document.getElementById("valueBtn");
 
-    document.getElementById("terraceBtn").onclick = () => {
-        noiseMode = "terraced";
-    };
-
-    document.getElementById("valueBtn").onclick = () => {
-        noiseMode = "white";
-    };
+    if (perlinBtn) perlinBtn.onclick = () => noiseMode = "perlin";
+    if (terraceBtn) terraceBtn.onclick = () => noiseMode = "terraced";
+    if (valueBtn) valueBtn.onclick = () => noiseMode = "white";
 }
 
 function draw() {
-
     background(10, 20, 35);
+
     orbitControl();
 
-    // 🌫 FOG LAYER
-    let fogY = -40 + sin(frameCount * 0.01) * 5;
+    updateSliders();
 
-    push();
-    noStroke();
-    fill(200, 220, 255, 18);
-    translate(0, fogY, 0);
-    rotateX(HALF_PI);
-    plane(5000, 5000);
-    pop();
-
-    // sliders
-    noiseScale = Number(document.getElementById("scaleSlider").value);
-    heightScale = Number(document.getElementById("heightSlider").value);
-    octaves = Number(document.getElementById("octaveSlider").value);
-    persistance = Number(document.getElementById("persistanceSlider").value);
-
-    document.getElementById("noiseTypeValue").textContent = noiseMode;
-    document.getElementById("scaleValue").textContent = noiseScale;
-    document.getElementById("heightValue").textContent = heightScale;
-    document.getElementById("octaveValue").textContent = octaves;
-    document.getElementById("persistanceValue").textContent = persistance;
+    // 🌫️ Fog layer (depth atmosphere)
+    drawFog();
 
     translate(-450, 0, -450);
 
-    // 🌊 OCEAN
+    // 🌊 Water animation
+    drawWater();
+
+    // 🏔️ Terrain
+    drawTerrain();
+}
+
+function updateSliders() {
+    const scaleSlider = document.getElementById("scaleSlider");
+    const heightSlider = document.getElementById("heightSlider");
+    const octaveSlider = document.getElementById("octaveSlider");
+    const persistenceSlider = document.getElementById("persistanceSlider");
+
+    noiseScale = scaleSlider ? Number(scaleSlider.value) : noiseScale;
+    heightScale = heightSlider ? Number(heightSlider.value) : heightScale;
+    octaves = octaveSlider ? Number(octaveSlider.value) : octaves;
+    persistence = persistenceSlider ? Number(persistenceSlider.value) : persistence;
+
+    setText("noiseTypeValue", noiseMode);
+    setText("scaleValue", noiseScale);
+    setText("heightValue", heightScale);
+    setText("octaveValue", octaves);
+    setText("persistanceValue", persistence);
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function drawFog() {
+    push();
+    noStroke();
+    fill(200, 220, 255, 20);
+
+    translate(0, -40 + sin(frameCount * 0.01) * 5, 0);
+    rotateX(HALF_PI);
+    plane(6000, 6000);
+
+    pop();
+}
+
+function drawWater() {
     let wave = sin(frameCount * 0.05) * 2;
     let waterLevel = 90 + sin(frameCount * 0.02) * 5;
 
     push();
     noStroke();
-    fill(0, 120 + sin(frameCount * 0.02) * 20, 255, 160);
-    translate(450, waterLevel + wave, 450);
-    rotateX(HALF_PI);
-    plane(3000, 3000);
-    pop();
+    fill(0, 140, 255, 140);
 
-    // 🏔 TERRAIN
+    translate(0, waterLevel + wave, 0);
+    rotateX(HALF_PI);
+    plane(5000, 5000);
+
+    pop();
+}
+
+function drawTerrain() {
+    let waterLevel = 90 + sin(frameCount * 0.02) * 5;
+
     stroke(0);
 
     for (let z = 0; z < 30; z++) {
@@ -81,13 +106,10 @@ function draw() {
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
-            if (h1 < waterLevel - 5) fill(0, 80, 200);
-            else if (h1 < waterLevel + 5) fill(194, 178, 128);
-            else if (h1 < 120) fill(34, 139, 34);
-            else if (h1 < 150) fill(120);
-            else fill(245);
-
+            drawColor(h1, waterLevel);
             vertex(x * 30, -h1, z * 30);
+
+            drawColor(h2, waterLevel);
             vertex(x * 30, -h2, (z + 1) * 30);
         }
 
@@ -95,33 +117,47 @@ function draw() {
     }
 }
 
-function getHeight(x, z) {
+function drawColor(h, waterLevel) {
+    if (h < waterLevel - 5) {
+        fill(0, 70, 180); // deep water
+    } 
+    else if (h < waterLevel + 5) {
+        fill(194, 178, 128); // beach
+    } 
+    else if (h < 120) {
+        fill(34, 139, 34); // grass
+    } 
+    else if (h < 150) {
+        fill(120); // rock
+    } 
+    else {
+        fill(245); // snow
+    }
+}
 
+function getHeight(x, z) {
     let height = 0;
     let amplitude = heightScale;
     let frequency = noiseScale;
 
-    for (let octave = 0; octave < octaves; octave++) {
+    for (let i = 0; i < octaves; i++) {
 
-        let noiseValue;
+        let value;
 
         if (noiseMode === "perlin") {
-            noiseValue = noise(x * frequency + seed, z * frequency + seed);
-
-        } else if (noiseMode === "terraced") {
-            noiseValue = noise(x * frequency + seed, z * frequency + seed);
-            noiseValue = Math.floor(noiseValue * 3) / 3;
-
-        } else {
-            noiseValue = whiteNoise(
-                x * frequency + seed,
-                z * frequency + seed
-            );
+            value = noise(x * frequency + seed, z * frequency + seed);
+        } 
+        else if (noiseMode === "terraced") {
+            value = noise(x * frequency + seed, z * frequency + seed);
+            value = Math.floor(value * 4) / 4;
+        } 
+        else {
+            value = whiteNoise(x * frequency + seed, z * frequency + seed);
         }
 
-        height += noiseValue * amplitude;
+        height += value * amplitude;
 
-        amplitude *= persistance;
+        amplitude *= persistence;
         frequency *= 2;
     }
 
