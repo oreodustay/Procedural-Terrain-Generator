@@ -35,12 +35,11 @@ function draw() {
 
     orbitControl();
 
-     let fogY = -40 + sin(frameCount * 0.01) * 5;
+    let fogY = -40 + sin(frameCount * 0.01) * 5;
 
     push();
     noStroke();
     fill(200, 220, 255, 18);
-
     translate(0, fogY, 0);
     rotateX(HALF_PI);
     plane(5000, 5000);
