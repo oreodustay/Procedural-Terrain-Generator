@@ -31,6 +31,17 @@ function setup() {
 
 function draw() {
 
+    let waterLevel = 90 + sin(frameCount * 0.02) * 5;
+
+    push();
+    fill(0, 80, 200, 150);
+    noStroke();
+    translate(0, waterLevel, 0);
+
+    rotateX(HALF_PI);
+    plane(2000, 2000);
+    pop();
+
     noiseScale = Number(document.getElementById("scaleSlider").value);
 
     heightScale = Number(document.getElementById("heightSlider").value);
