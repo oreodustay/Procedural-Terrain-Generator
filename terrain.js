@@ -35,6 +35,17 @@ function draw() {
 
     orbitControl();
 
+     let fogY = -40 + sin(frameCount * 0.01) * 5;
+
+    push();
+    noStroke();
+    fill(200, 220, 255, 18);
+
+    translate(0, fogY, 0);
+    rotateX(HALF_PI);
+    plane(5000, 5000);
+    pop();
+
     // sliders first
     noiseScale = Number(document.getElementById("scaleSlider").value);
     heightScale = Number(document.getElementById("heightSlider").value);
