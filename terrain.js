@@ -102,7 +102,7 @@ function drawTerrain() {
 
 function drawWater() {
 
-    push();
+    push(); 
 
     noStroke();
 
