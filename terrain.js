@@ -102,10 +102,9 @@ function drawTerrain() {
 
 function drawWater() {
 
-    push(); 
+    push();
 
     noStroke();
-
     fill(0, 120, 255, 120);
 
     translate(450, -90, 450);
