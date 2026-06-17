@@ -43,16 +43,19 @@ function setupButtons() {
 
 function draw() {
 
+    // clean sky ONLY (no fake fog planes)
     background(135, 190, 255);
 
-    orbitControl(); // IMPORTANT for movement
+    // THIS is what lets you move around again
+    orbitControl();
 
     updateValues();
 
-    // better camera position feel
+    // center terrain properly
     translate(-SIZE * TILE / 2, 0, -SIZE * TILE / 2);
 
     drawTerrain();
+    drawWater();
 }
 
 /* ---------------- UI ---------------- */
@@ -65,7 +68,7 @@ function updateValues() {
     persistence = getVal("persistanceSlider", persistence);
 
     setText("noiseTypeValue", noiseMode);
-    setText("scaleValue", noiseScale.toFixed(2));
+    setText("scaleValue", noiseScale);
     setText("heightValue", heightScale);
     setText("octaveValue", octaves);
     setText("persistanceValue", persistence);
@@ -85,8 +88,7 @@ function setText(id, val) {
 
 function drawTerrain() {
 
-    stroke(40);
-    noStroke();
+    stroke(30);
 
     for (let z = 0; z < SIZE; z++) {
 
@@ -108,27 +110,37 @@ function drawTerrain() {
     }
 }
 
+/* ---------------- WATER ---------------- */
+
+function drawWater() {
+
+    let waterLevel = 60;
+
+    push();
+
+    noStroke();
+    fill(0, 120, 255, 140);
+
+    // keep water aligned with terrain
+    translate(0, waterLevel, 0);
+    rotateX(HALF_PI);
+
+    plane(3000, 3000);
+
+    pop();
+}
+
 /* ---------------- COLORS ---------------- */
 
 function setColor(h) {
 
-    let waterLevel = 90;
+    let waterLevel = 60;
 
-    if (h < waterLevel - 10) {
-        fill(0, 70, 160); // deep water
-    }
-    else if (h < waterLevel + 5) {
-        fill(194, 178, 128); // sand
-    }
-    else if (h < 140) {
-        fill(50, 160, 70); // grass
-    }
-    else if (h < 180) {
-        fill(110); // rock
-    }
-    else {
-        fill(240); // snow
-    }
+    if (h < waterLevel - 5) fill(0, 70, 160);
+    else if (h < waterLevel + 5) fill(194, 178, 128);
+    else if (h < 130) fill(50, 160, 70);
+    else if (h < 170) fill(110);
+    else fill(240);
 }
 
 /* ---------------- HEIGHT ---------------- */
