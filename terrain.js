@@ -8,12 +8,13 @@ let persistence = 0.5;
 let noiseMode = "perlin";
 
 function setup() {
-    let canvasWidth = min(windowWidth * 0.9, 800);
-    let canvasHeight = min(windowHeight * 0.6, 600);
 
     let canvas = createCanvas(
-        canvasWidth, canvasHeight, WEBGL);
-    
+        min(windowWidth * 0.95, 800),
+        min(windowHeight * 0.6, 600),
+        WEBGL
+    );
+
     canvas.parent("canvas-container");
 
     setupButtons();
@@ -22,66 +23,65 @@ function setup() {
 function windowResized() {
 
     resizeCanvas(
-        min(windowWidth * 0.9, 800),
+        min(windowWidth * 0.95, 800),
         min(windowHeight * 0.6, 600)
     );
-
 }
 
 function setupButtons() {
-    const perlinBtn = document.getElementById("perlinBtn");
-    const terraceBtn = document.getElementById("terraceBtn");
-    const valueBtn = document.getElementById("valueBtn");
 
-    if (perlinBtn) perlinBtn.onclick = () => noiseMode = "perlin";
-    if (terraceBtn) terraceBtn.onclick = () => noiseMode = "terraced";
-    if (valueBtn) valueBtn.onclick = () => noiseMode = "white";
+    document.getElementById("perlinBtn").onclick = () => {
+        noiseMode = "perlin";
+    };
+
+    document.getElementById("terraceBtn").onclick = () => {
+        noiseMode = "terraced";
+    };
+
+    document.getElementById("valueBtn").onclick = () => {
+        noiseMode = "white";
+    };
 }
 
 function draw() {
-    background(135, 190, 255); // simple sky (no effects)
 
-   // orbitControl();
-
-    // Move camera back so terrain is visible
-    translate(-450, 150, -1000);
+    background(135, 190, 255);
 
     updateValues();
 
-    drawTerrain();
-    drawWater();
-}
+    camera(
+        450, -500, 1200,
+        450, 0, 450,
+        0, 1, 0
+    );
 
+    ambientLight(180);
+    directionalLight(255, 255, 255, -1, 1, -1);
+
+    drawWater();
+    drawTerrain();
+}
 
 function updateValues() {
-    noiseScale = getVal("scaleSlider", noiseScale);
-    heightScale = getVal("heightSlider", heightScale);
-    octaves = getVal("octaveSlider", octaves);
-    persistence = getVal("persistanceSlider", persistence);
 
-    setText("noiseTypeValue", noiseMode);
-    setText("scaleValue", noiseScale);
-    setText("heightValue", heightScale);
-    setText("octaveValue", octaves);
-    setText("persistanceValue", persistence);
+    noiseScale = Number(document.getElementById("scaleSlider").value);
+    heightScale = Number(document.getElementById("heightSlider").value);
+    octaves = Number(document.getElementById("octaveSlider").value);
+    persistence = Number(document.getElementById("persistanceSlider").value);
+
+    document.getElementById("noiseTypeValue").textContent = noiseMode;
+    document.getElementById("scaleValue").textContent = noiseScale;
+    document.getElementById("heightValue").textContent = heightScale;
+    document.getElementById("octaveValue").textContent = octaves;
+    document.getElementById("persistanceValue").textContent = persistence;
 }
-
-function getVal(id, fallback) {
-    const el = document.getElementById(id);
-    return el ? Number(el.value) : fallback;
-}
-
-function setText(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-}
-
-/* ---------------- TERRAIN ---------------- */
 
 function drawTerrain() {
-    stroke(0);
-    
+
+    stroke(40);
+
     for (let z = 0; z < 30; z++) {
+
         beginShape(TRIANGLE_STRIP);
 
         for (let x = 0; x < 30; x++) {
@@ -89,10 +89,10 @@ function drawTerrain() {
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
-            setColor(h1);
+            setTerrainColor(h1);
             vertex(x * 30, -h1, z * 30);
 
-            setColor(h2);
+            setTerrainColor(h2);
             vertex(x * 30, -h2, (z + 1) * 30);
         }
 
@@ -100,69 +100,91 @@ function drawTerrain() {
     }
 }
 
-/* ---------------- WATER ---------------- */
-
 function drawWater() {
-    let waterLevel = 90;
 
     push();
-    noStroke();
-    fill(0, 120, 255, 160);
 
-    translate(0, waterLevel, 0);
+    noStroke();
+
+    fill(0, 120, 255, 120);
+
+    translate(450, -90, 450);
+
     rotateX(HALF_PI);
-    plane(2000, 2000);
+
+    plane(2500, 2500);
 
     pop();
 }
 
-/* ---------------- COLORS ---------------- */
+function setTerrainColor(h) {
 
-function setColor(h) {
-    let waterLevel = 90;
-
-    if (h < waterLevel - 5) fill(0, 70, 180);
-    else if (h < waterLevel + 5) fill(194, 178, 128);
-    else if (h < 120) fill(34, 139, 34);
-    else if (h < 150) fill(120);
-    else fill(245);
+    if (h < 90) {
+        fill(0, 70, 180);
+    }
+    else if (h < 105) {
+        fill(194, 178, 128);
+    }
+    else if (h < 140) {
+        fill(50, 170, 70);
+    }
+    else if (h < 190) {
+        fill(120);
+    }
+    else {
+        fill(250);
+    }
 }
 
-/* ---------------- HEIGHT ---------------- */
-
 function getHeight(x, z) {
-    let h = 0;
-    let amp = heightScale;
-    let freq = noiseScale;
+
+    let height = 0;
+
+    let amplitude = heightScale;
+    let frequency = noiseScale;
 
     for (let i = 0; i < octaves; i++) {
 
-        let n;
+        let value;
 
         if (noiseMode === "perlin") {
-            n = noise(x * freq + seed, z * freq + seed);
-        } 
-        else if (noiseMode === "terraced") {
-            n = noise(x * freq + seed, z * freq + seed);
-            n = Math.floor(n * 4) / 4;
-        } 
-        else {
-            n = whiteNoise(x * freq + seed, z * freq + seed);
+
+            value = noise(
+                x * frequency + seed,
+                z * frequency + seed
+            );
+
+        } else if (noiseMode === "terraced") {
+
+            value = noise(
+                x * frequency + seed,
+                z * frequency + seed
+            );
+
+            value = floor(value * 4) / 4;
+
+        } else {
+
+            value = whiteNoise(
+                x * frequency + seed,
+                z * frequency + seed
+            );
         }
 
-        h += n * amp;
+        height += value * amplitude;
 
-        amp *= persistence;
-        freq *= 2;
+        amplitude *= persistence;
+        frequency *= 2;
     }
 
-    return h;
+    return height;
 }
 
-/* ---------------- WHITE NOISE ---------------- */
-
 function whiteNoise(x, z) {
+
     let n = x * 374761 + z * 668265;
-    n = Math.sin(n) * 43758.5453;
-    return n - Math.floor(n);
+
+    n = sin(n) * 43758.5453;
+
+    return n - floor(n);
 }
