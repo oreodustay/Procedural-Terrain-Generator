@@ -105,6 +105,7 @@ function drawWater() {
     push();
 
     noStroke();
+
     fill(0, 120, 255, 120);
 
     translate(450, -90, 450);
