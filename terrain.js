@@ -8,7 +8,7 @@ let persistence = 0.5;
 let noiseMode = "perlin";
 
 const SIZE = 60;
-const TILE = 20;
+const TILE = 15;
 
 function setup() {
 
@@ -30,6 +30,8 @@ function windowResized() {
     );
 }
 
+/* ---------------- CONTROLS ---------------- */
+
 function setupButtons() {
 
     const perlinBtn = document.getElementById("perlinBtn");
@@ -41,47 +43,39 @@ function setupButtons() {
     if (valueBtn) valueBtn.onclick = () => noiseMode = "white";
 }
 
+/* ---------------- MAIN DRAW ---------------- */
+
 function draw() {
 
-    // clean sky ONLY (no fake fog planes)
     background(135, 190, 255);
 
-    // THIS is what lets you move around again
     orbitControl();
 
     updateValues();
 
-    // center terrain properly
-    translate(-SIZE * TILE / 2, 0, -SIZE * TILE / 2);
+    // lighting = what makes it look real
+    ambientLight(120);
+    directionalLight(255, 255, 255, -0.6, 1, -0.3);
+
+    translate(-SIZE * TILE / 2, 80, -SIZE * TILE / 2);
 
     drawTerrain();
-    drawWater();
 }
 
 /* ---------------- UI ---------------- */
 
 function updateValues() {
 
-    noiseScale = getVal("scaleSlider", noiseScale);
-    heightScale = getVal("heightSlider", heightScale);
-    octaves = getVal("octaveSlider", octaves);
-    persistence = getVal("persistanceSlider", persistence);
+    noiseScale = Number(document.getElementById("scaleSlider").value);
+    heightScale = Number(document.getElementById("heightSlider").value);
+    octaves = Number(document.getElementById("octaveSlider").value);
+    persistence = Number(document.getElementById("persistanceSlider").value);
 
-    setText("noiseTypeValue", noiseMode);
-    setText("scaleValue", noiseScale);
-    setText("heightValue", heightScale);
-    setText("octaveValue", octaves);
-    setText("persistanceValue", persistence);
-}
-
-function getVal(id, fallback) {
-    const el = document.getElementById(id);
-    return el ? Number(el.value) : fallback;
-}
-
-function setText(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
+    document.getElementById("noiseTypeValue").textContent = noiseMode;
+    document.getElementById("scaleValue").textContent = noiseScale;
+    document.getElementById("heightValue").textContent = heightScale;
+    document.getElementById("octaveValue").textContent = octaves;
+    document.getElementById("persistanceValue").textContent = persistence;
 }
 
 /* ---------------- TERRAIN ---------------- */
@@ -99,10 +93,10 @@ function drawTerrain() {
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
-            setColor(h1);
+            setTerrainColor(h1);
             vertex(x * TILE, -h1, z * TILE);
 
-            setColor(h2);
+            setTerrainColor(h2);
             vertex(x * TILE, -h2, (z + 1) * TILE);
         }
 
@@ -110,40 +104,7 @@ function drawTerrain() {
     }
 }
 
-/* ---------------- WATER ---------------- */
-
-function drawWater() {
-
-    let waterLevel = 60;
-
-    push();
-
-    noStroke();
-    fill(0, 120, 255, 140);
-
-    // keep water aligned with terrain
-    translate(0, waterLevel, 0);
-    rotateX(HALF_PI);
-
-    plane(3000, 3000);
-
-    pop();
-}
-
-/* ---------------- COLORS ---------------- */
-
-function setColor(h) {
-
-    let waterLevel = 60;
-
-    if (h < waterLevel - 5) fill(0, 70, 160);
-    else if (h < waterLevel + 5) fill(194, 178, 128);
-    else if (h < 130) fill(50, 160, 70);
-    else if (h < 170) fill(110);
-    else fill(240);
-}
-
-/* ---------------- HEIGHT ---------------- */
+/* ---------------- HEIGHT (REALISTIC NOISE) ---------------- */
 
 function getHeight(x, z) {
 
@@ -168,6 +129,9 @@ function getHeight(x, z) {
             n = whiteNoise(x * freq, z * freq);
         }
 
+        // smoother, more natural terrain shape
+        n = (n * 2 - 1) * 0.5 + 0.5;
+
         h += n * amp;
 
         amp *= persistence;
@@ -177,10 +141,51 @@ function getHeight(x, z) {
     return h;
 }
 
+/* ---------------- REALISTIC COLORS ---------------- */
+
+function setTerrainColor(h) {
+
+    let water = 60;
+
+    if (h < water) {
+        fill(0, 90, 180); // deep water
+    }
+
+    else if (h < water + 15) {
+        // sand blend
+        let t = map(h, water, water + 15, 0, 1);
+        fill(
+            lerp(194, 210, t),
+            lerp(178, 190, t),
+            lerp(128, 150, t)
+        );
+    }
+
+    else if (h < 140) {
+        // grass blend
+        let t = map(h, water + 15, 140, 0, 1);
+        fill(
+            lerp(40, 30, t),
+            lerp(160, 120, t),
+            lerp(60, 40, t)
+        );
+    }
+
+    else if (h < 180) {
+        fill(120, 120, 120); // rock
+    }
+
+    else {
+        fill(240, 240, 240); // snow
+    }
+}
+
 /* ---------------- WHITE NOISE ---------------- */
 
 function whiteNoise(x, z) {
+
     let n = x * 374761 + z * 668265;
     n = sin(n) * 43758.5453;
+
     return n - floor(n);
 }
