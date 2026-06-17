@@ -12,7 +12,7 @@ function setup() {
     let canvasHeight = min(windowHeight * 0.6, 600);
 
     let canvas = createCanvas(
-        canvasWidth, canvasHeight, WEBGL);
+        canvasWidth, canvasHeight);
     
     canvas.parent("canvas-container");
 
