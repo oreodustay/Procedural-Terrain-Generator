@@ -10,6 +10,11 @@ let noiseMode = "perlin";
 const SIZE = 60;
 const TILE = 15;
 
+// 🌊 river settings
+let riverAngle = 0.4; // direction of river flow
+let riverWidth = 0.12;
+let riverDepth = 35;
+
 function setup() {
 
     let canvas = createCanvas(
@@ -53,7 +58,6 @@ function draw() {
 
     updateValues();
 
-    // lighting = what makes it look real
     ambientLight(120);
     directionalLight(255, 255, 255, -0.6, 1, -0.3);
 
@@ -82,7 +86,7 @@ function updateValues() {
 
 function drawTerrain() {
 
-      stroke(30);
+    stroke(25);
 
     for (let z = 0; z < SIZE; z++) {
 
@@ -104,7 +108,7 @@ function drawTerrain() {
     }
 }
 
-/* ---------------- HEIGHT (REALISTIC NOISE) ---------------- */
+/* ---------------- HEIGHT + RIVERS ---------------- */
 
 function getHeight(x, z) {
 
@@ -112,25 +116,14 @@ function getHeight(x, z) {
     let amp = heightScale;
     let freq = noiseScale;
 
+    // base terrain
     for (let i = 0; i < octaves; i++) {
 
-        let n;
+        let n = noise(x * freq, z * freq);
 
-        if (noiseMode === "perlin") {
-            n = noise(x * freq, z * freq);
-        }
-
-        else if (noiseMode === "terraced") {
-            n = noise(x * freq, z * freq);
+        if (noiseMode === "terraced") {
             n = floor(n * 4) / 4;
         }
-
-        else {
-            n = whiteNoise(x * freq, z * freq);
-        }
-
-        // smoother, more natural terrain shape
-        n = (n * 2 - 1) * 0.5 + 0.5;
 
         h += n * amp;
 
@@ -138,54 +131,69 @@ function getHeight(x, z) {
         freq *= 2;
     }
 
+    // 🌊 RIVER CARVING
+    let river = riverMask(x, z);
+
+    if (river > 0) {
+        h -= river * riverDepth;
+    }
+
     return h;
 }
 
-/* ---------------- REALISTIC COLORS ---------------- */
+/* ---------------- RIVER FUNCTION ---------------- */
+
+function riverMask(x, z) {
+
+    // diagonal flowing river
+    let nx = x / SIZE;
+    let nz = z / SIZE;
+
+    // rotate space so river flows diagonally
+    let dx = nx * cos(riverAngle) - nz * sin(riverAngle);
+    let dz = nx * sin(riverAngle) + nz * cos(riverAngle);
+
+    // noise-based river path
+    let n = noise(dx * 3, dz * 3);
+
+    // turn into thin river line
+    let distToRiver = abs(n - 0.5);
+
+    let mask = 1 - smoothstep(riverWidth, riverWidth + 0.1, distToRiver);
+
+    return mask;
+}
+
+/* ---------------- COLORS ---------------- */
 
 function setTerrainColor(h) {
 
     let water = 60;
 
     if (h < water) {
-        fill(0, 90, 180); // deep water
+        fill(0, 90, 180); // water
     }
 
-    else if (h < water + 15) {
-        // sand blend
-        let t = map(h, water, water + 15, 0, 1);
-        fill(
-            lerp(194, 210, t),
-            lerp(178, 190, t),
-            lerp(128, 150, t)
-        );
+    else if (h < water + 12) {
+        fill(200, 180, 140); // sand
     }
 
     else if (h < 140) {
-        // grass blend
-        let t = map(h, water + 15, 140, 0, 1);
-        fill(
-            lerp(40, 30, t),
-            lerp(160, 120, t),
-            lerp(60, 40, t)
-        );
+        fill(40, 150, 60); // grass
     }
 
     else if (h < 180) {
-        fill(120, 120, 120); // rock
+        fill(110); // rock
     }
 
     else {
-        fill(240, 240, 240); // snow
+        fill(240); // snow
     }
 }
 
-/* ---------------- WHITE NOISE ---------------- */
+/* ---------------- SMOOTHSTEP ---------------- */
 
-function whiteNoise(x, z) {
-
-    let n = x * 374761 + z * 668265;
-    n = sin(n) * 43758.5453;
-
-    return n - floor(n);
+function smoothstep(edge0, edge1, x) {
+    let t = constrain((x - edge0) / (edge1 - edge0), 0, 1);
+    return t * t * (3 - 2 * t);
 }
