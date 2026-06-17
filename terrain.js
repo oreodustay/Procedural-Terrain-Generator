@@ -50,13 +50,6 @@ function draw() {
 
     drawTerrain();
     drawWater();
-
-    updateValues();
-
-    translate(-450, 0, -450);
-
-    drawTerrain();
-    drawWater();
 }
 
 
