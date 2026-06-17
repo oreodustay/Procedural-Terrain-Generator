@@ -41,7 +41,7 @@ function setupButtons() {
 function draw() {
     background(135, 190, 255); // simple sky (no effects)
 
-    orbitControl();
+   // orbitControl();
 
     // Move camera back so terrain is visible
     translate(-450, 150, -1000);
