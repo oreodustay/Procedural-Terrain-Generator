@@ -82,7 +82,7 @@ function updateValues() {
 
 function drawTerrain() {
 
-    stroke(30);
+    noStroke();
 
     for (let z = 0; z < SIZE; z++) {
 
