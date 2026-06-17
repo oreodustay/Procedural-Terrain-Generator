@@ -8,7 +8,13 @@ let persistence = 0.5;
 let noiseMode = "perlin";
 
 function setup() {
-    const canvas = createCanvas(800, 600, WEBGL);
+    function windowResized() {
+    let canvasWidth = min(windowWidth * 0.9, 800);
+    let canvasHeight = min(windowHeight * 0.6, 600);
+
+        resizeCanvas(canvasWidth, canvasHeight);
+    }
+    
     canvas.parent("canvas-container");
 
     setupButtons();
