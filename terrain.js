@@ -43,6 +43,14 @@ function draw() {
 
     orbitControl();
 
+    // Move camera back so terrain is visible
+    translate(-450, 150, -1000);
+
+    updateValues();
+
+    drawTerrain();
+    drawWater();
+
     updateValues();
 
     translate(-450, 0, -450);
@@ -51,7 +59,6 @@ function draw() {
     drawWater();
 }
 
-/* ---------------- UI ---------------- */
 
 function updateValues() {
     noiseScale = getVal("scaleSlider", noiseScale);
