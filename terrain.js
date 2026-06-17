@@ -47,6 +47,8 @@ function draw() {
 
     background(135, 190, 255);
 
+    orbitControl();
+
     updateValues();
 
     camera(
