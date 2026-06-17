@@ -108,7 +108,9 @@ function drawWater() {
 
     fill(0, 120, 255, 120);
 
-    translate(450, -90, 450);
+    let wave = sin(frameCount * 0.05) * 4;
+
+    translate(450, -90 + wave, 450);
 
     rotateX(HALF_PI);
 
