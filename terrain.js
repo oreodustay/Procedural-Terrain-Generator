@@ -196,7 +196,7 @@ function drawHistogram(heights) {
 
     // Make the canvas responsive
     canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientWidth * 0.45;
+    canvas.height = 300;
 
     const ctx = canvas.getContext("2d");
 
