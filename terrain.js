@@ -194,7 +194,6 @@ function drawHistogram(heights) {
     const canvas = document.getElementById("histogram");
     if (!canvas) return;
 
-    // Make the canvas responsive
     canvas.width = canvas.clientWidth;
     canvas.height = 300;
 
@@ -202,13 +201,13 @@ function drawHistogram(heights) {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const bins = 20;
+    const bins = 10;
     const histogram = new Array(bins).fill(0);
 
     const minHeight = Math.min(...heights);
     const maxHeight = Math.max(...heights);
 
-    // Count elevations in each bin
+    // Count heights into bins
     for (let h of heights) {
 
         let index = Math.floor(
@@ -224,25 +223,72 @@ function drawHistogram(heights) {
     const maxCount = Math.max(...histogram);
 
     // Background
-    ctx.fillStyle = "#1f2533";
+    ctx.fillStyle = "#10263d";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const margin = 50;
-    const graphWidth = canvas.width - margin * 2;
-    const graphHeight = canvas.height - margin * 2;
-    const barWidth = graphWidth / bins;
+    const marginLeft = 60;
+    const marginBottom = 45;
+    const marginTop = 45;
+    const marginRight = 20;
 
-    // Axes
+    const graphWidth = canvas.width - marginLeft - marginRight;
+    const graphHeight = canvas.height - marginTop - marginBottom;
+
+    // Draw axes
     ctx.strokeStyle = "white";
     ctx.lineWidth = 2;
 
     ctx.beginPath();
-    ctx.moveTo(margin, margin);
-    ctx.lineTo(margin, canvas.height - margin);
-    ctx.lineTo(canvas.width - margin, canvas.height - margin);
+    ctx.moveTo(marginLeft, marginTop);
+    ctx.lineTo(marginLeft, marginTop + graphHeight);
+    ctx.lineTo(marginLeft + graphWidth, marginTop + graphHeight);
     ctx.stroke();
 
-    // Bars
+    // ---------- Y Axis ----------
+    ctx.fillStyle = "white";
+    ctx.font = "12px Arial";
+    ctx.textAlign = "right";
+
+    const yTicks = 5;
+
+    for (let i = 0; i <= yTicks; i++) {
+
+        const value = Math.round(maxCount * (yTicks - i) / yTicks);
+
+        const y = marginTop + (graphHeight / yTicks) * i;
+
+        // Tick
+        ctx.beginPath();
+        ctx.moveTo(marginLeft - 5, y);
+        ctx.lineTo(marginLeft, y);
+        ctx.stroke();
+
+        // Number
+        ctx.fillText(value, marginLeft - 10, y + 4);
+    }
+
+    // ---------- X Axis ----------
+    ctx.textAlign = "center";
+
+    for (let i = 0; i <= bins; i++) {
+
+        const x = marginLeft + (graphWidth / bins) * i;
+
+        ctx.beginPath();
+        ctx.moveTo(x, marginTop + graphHeight);
+        ctx.lineTo(x, marginTop + graphHeight + 5);
+        ctx.stroke();
+
+        const value = Math.round(
+            minHeight + (maxHeight - minHeight) * i / bins
+        );
+
+        ctx.fillText(value, x, marginTop + graphHeight + 20);
+    }
+
+    // ---------- Bars ----------
+    const barWidth = graphWidth / bins;
+
     for (let i = 0; i < bins; i++) {
 
         const barHeight =
@@ -251,35 +297,35 @@ function drawHistogram(heights) {
         ctx.fillStyle = "#4FC3F7";
 
         ctx.fillRect(
-            margin + i * barWidth,
-            canvas.height - margin - barHeight,
-            barWidth - 3,
+            marginLeft + i * barWidth + 2,
+            marginTop + graphHeight - barHeight,
+            barWidth - 4,
             barHeight
         );
     }
 
-    // Title
+    // ---------- Title ----------
     ctx.fillStyle = "white";
-    ctx.font = "bold 20px Arial";
+    ctx.font = "bold 22px Arial";
     ctx.textAlign = "center";
-    ctx.fillText(
-        "Elevation Histogram",
-        canvas.width / 2,
-        30
-    );
+    ctx.fillText("Elevation Histogram", canvas.width / 2, 28);
 
-    // X label
+    // ---------- X Label ----------
     ctx.font = "16px Arial";
     ctx.fillText(
         "Elevation",
         canvas.width / 2,
-        canvas.height - 10
+        canvas.height - 8
     );
 
-    // Y label
+    // ---------- Y Label ----------
     ctx.save();
-    ctx.translate(20, canvas.height / 2);
+
+    ctx.translate(18, canvas.height / 2);
+
     ctx.rotate(-Math.PI / 2);
+
     ctx.fillText("Number of Points", 0, 0);
+
     ctx.restore();
 }
