@@ -7,8 +7,8 @@ let persistence = 0.5;
 
 let noiseMode = "perlin";
 
-const SIZE = 60;
-const TILE = 15;
+const SIZE = 40;
+const TILE = 20;
 
 function setup() {
 
@@ -51,7 +51,6 @@ function draw() {
 
     updateValues();
 
-    // lighting = what makes it look real
     ambientLight(120);
     directionalLight(255, 255, 255, -0.6, 1, -0.3);
 
