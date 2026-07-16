@@ -1,93 +1,101 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
-        <title>Procedural Terrain Generator</title>
-        <script src="https://cdn.jsdelivr.net/npm/p5@1.11.8/lib/p5.min.js"></script>
-        <script src="terrain.js"></script>
-        <link rel="stylesheet" href="styles.css">
-        <link rel="icon" type="image/png" href="mountain.png">
-    </head>
-    <body>
-        <h1>How Do Different Noise Algorithms Affect the Realism
-            And Characteristics Of Procedurally Generated Terrain?
-        </h1>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procedural Terrain Generator</title>
 
-        <div class="main-container">
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.8/lib/p5.min.js"></script>
+    <script src="terrain.js"></script>
 
-            <div class="control-panel">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="mountain.png">
+</head>
 
-                <h2>Controls</h2>
+<body>
+
+    <h1>
+        How Do Different Noise Algorithms Affect the Realism
+        And Characteristics Of Procedurally Generated Terrain?
+    </h1>
+
+    <div class="main-container">
+
+        <div class="control-panel">
+
+            <h2>Controls</h2>
 
             <label for="scaleSlider">Scale</label>
 
             <input
-            type="range"
-            id="scaleSlider"
-            min="0.01"
-            max="0.20"
-            step="0.01"
-            value="0.05">
+                type="range"
+                id="scaleSlider"
+                min="0.01"
+                max="0.20"
+                step="0.01"
+                value="0.05">
 
             <label for="heightSlider">Height</label>
 
             <input
-            type="range"
-            id="heightSlider"
-            min="50"
-            max="300"
-            step="10"
-            value="100">
+                type="range"
+                id="heightSlider"
+                min="50"
+                max="300"
+                step="10"
+                value="100">
 
             <label for="octaveSlider">Octaves</label>
 
             <input
-            type="range"
-            id="octaveSlider"
-            min="1"
-            max="8"
-            step="1"
-            value="4">
+                type="range"
+                id="octaveSlider"
+                min="1"
+                max="8"
+                step="1"
+                value="4">
 
             <label for="persistanceSlider">Persistance</label>
 
             <input
-            type="range"
-            id="persistanceSlider"
-            min="0.01"
-            max="1"
-            step="0.1"
-            value="0.5">
+                type="range"
+                id="persistanceSlider"
+                min="0.01"
+                max="1"
+                step="0.1"
+                value="0.5">
 
-        <h2>Current Values:</h2>
+            <h2>Current Values</h2>
 
-        <p>Noise Type: <span id="noiseTypeValue"></span></p>
-        <p>Scale: <span id = "scaleValue"></span></p>
-        <p>Height: <span id = "heightValue"></span></p>
-        <p>Octaves: <span id = "octaveValue"></span></p>
-        <p>Persistance: <span id = "persistanceValue"></span></p>
+            <p>Noise Type: <span id="noiseTypeValue"></span></p>
+            <p>Scale: <span id="scaleValue"></span></p>
+            <p>Height: <span id="heightValue"></span></p>
+            <p>Octaves: <span id="octaveValue"></span></p>
+            <p>Persistance: <span id="persistanceValue"></span></p>
 
-        <h2>Noise Type</h2>
+            <h2>Noise Type</h2>
 
-        <button id="perlinBtn">Perlin Noise</button>
-        <button id="terraceBtn">Terraced Noise</button>
-        <button id="valueBtn">White Noise</button>
+            <button id="perlinBtn">Perlin Noise</button>
+            <button id="terraceBtn">Terraced Noise</button>
+            <button id="valueBtn">White Noise</button>
 
         </div>
 
         <div id="canvas-container"></div>
 
-                    <section class="histogram-section">
+    </div>
 
-    <h2>Elevation Histogram</h2>
+    <!-- Histogram -->
+    <section class="histogram-section">
 
-    <canvas id="histogram"></canvas>
+        <h2>Elevation Histogram</h2>
 
-</section>
+        <canvas id="histogram"></canvas>
 
-        </div>
+    </section>
 
+    <footer id="footer">
+        Made By: Nattaya Trigg, St Dominics Catholic College, Yr 9
+    </footer>
 
-        <footer id="footer">Made By: Nattaya Trigg, St Dominics Catholic College, Yr 9</footer>
-    </body>
+</body>
 </html>
