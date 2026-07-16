@@ -30,7 +30,6 @@ function windowResized() {
     );
 }
 
-/* ---------------- CONTROLS ---------------- */
 
 function setupButtons() {
 
@@ -43,7 +42,6 @@ function setupButtons() {
     if (valueBtn) valueBtn.onclick = () => noiseMode = "white";
 }
 
-/* ---------------- MAIN DRAW ---------------- */
 
 function draw() {
 
@@ -62,8 +60,6 @@ function draw() {
     drawTerrain();
 }
 
-/* ---------------- UI ---------------- */
-
 function updateValues() {
 
     noiseScale = Number(document.getElementById("scaleSlider").value);
@@ -78,11 +74,12 @@ function updateValues() {
     document.getElementById("persistanceValue").textContent = persistence;
 }
 
-/* ---------------- TERRAIN ---------------- */
 
 function drawTerrain() {
 
     stroke(30);
+
+    let heights = [];
 
     for (let z = 0; z < SIZE; z++) {
 
@@ -93,6 +90,9 @@ function drawTerrain() {
             let h1 = getHeight(x, z);
             let h2 = getHeight(x, z + 1);
 
+            heights.push(h1);
+            heights.push(h2);
+
             setTerrainColor(h1);
             vertex(x * TILE, -h1, z * TILE);
 
@@ -102,9 +102,10 @@ function drawTerrain() {
 
         endShape();
     }
+
+    drawHistogram(heights);
 }
 
-/* ---------------- HEIGHT (REALISTIC NOISE) ---------------- */
 
 function getHeight(x, z) {
 
@@ -141,7 +142,6 @@ function getHeight(x, z) {
     return h;
 }
 
-/* ---------------- REALISTIC COLORS ---------------- */
 
 function setTerrainColor(h) {
 
@@ -180,7 +180,6 @@ function setTerrainColor(h) {
     }
 }
 
-/* ---------------- WHITE NOISE ---------------- */
 
 function whiteNoise(x, z) {
 
@@ -188,4 +187,99 @@ function whiteNoise(x, z) {
     n = sin(n) * 43758.5453;
 
     return n - floor(n);
+}
+
+function drawHistogram(heights) {
+
+    const canvas = document.getElementById("histogram");
+    if (!canvas) return;
+
+    // Make the canvas responsive
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientWidth * 0.45;
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const bins = 20;
+    const histogram = new Array(bins).fill(0);
+
+    const minHeight = Math.min(...heights);
+    const maxHeight = Math.max(...heights);
+
+    // Count elevations in each bin
+    for (let h of heights) {
+
+        let index = Math.floor(
+            (h - minHeight) / (maxHeight - minHeight) * bins
+        );
+
+        if (index >= bins) index = bins - 1;
+        if (index < 0) index = 0;
+
+        histogram[index]++;
+    }
+
+    const maxCount = Math.max(...histogram);
+
+    // Background
+    ctx.fillStyle = "#1f2533";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const margin = 50;
+    const graphWidth = canvas.width - margin * 2;
+    const graphHeight = canvas.height - margin * 2;
+    const barWidth = graphWidth / bins;
+
+    // Axes
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(margin, margin);
+    ctx.lineTo(margin, canvas.height - margin);
+    ctx.lineTo(canvas.width - margin, canvas.height - margin);
+    ctx.stroke();
+
+    // Bars
+    for (let i = 0; i < bins; i++) {
+
+        const barHeight =
+            (histogram[i] / maxCount) * graphHeight;
+
+        ctx.fillStyle = "#4FC3F7";
+
+        ctx.fillRect(
+            margin + i * barWidth,
+            canvas.height - margin - barHeight,
+            barWidth - 3,
+            barHeight
+        );
+    }
+
+    // Title
+    ctx.fillStyle = "white";
+    ctx.font = "bold 20px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(
+        "Elevation Histogram",
+        canvas.width / 2,
+        30
+    );
+
+    // X label
+    ctx.font = "16px Arial";
+    ctx.fillText(
+        "Elevation",
+        canvas.width / 2,
+        canvas.height - 10
+    );
+
+    // Y label
+    ctx.save();
+    ctx.translate(20, canvas.height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Number of Points", 0, 0);
+    ctx.restore();
 }
