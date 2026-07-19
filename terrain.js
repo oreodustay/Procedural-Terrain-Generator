@@ -103,7 +103,6 @@ function drawTerrain() {
     }
 
     drawHistogram(heights);
-    drawFrequencySpectrum(heights);
 }
 
 
