@@ -402,10 +402,10 @@ function drawFrequencySpectrum(heights) {
     ctx.fillStyle="white";
     ctx.font="bold 22px Arial";
     ctx.textAlign="center";
-    ctx.fillText("Frequency Spectrum", canvas.width/2, 28);
+    ctx.fillText("Terrain Roughness Distribution", canvas.width/2, 28);
 
     ctx.font="16px Arial";
-    ctx.fillText("Terrain Detail Size (Low → High Frequency)",
+    ctx.fillText("Height Difference (Small → Large)",
         canvas.width/2,
         canvas.height-10
     );
