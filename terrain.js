@@ -103,6 +103,7 @@ function drawTerrain() {
     }
 
     drawHistogram(heights);
+    drawFrequencySpectrum(heights);
 }
 
 
@@ -326,5 +327,92 @@ function drawHistogram(heights) {
 
     ctx.fillText("Number of Points", 0, 0);
 
+    ctx.restore();
+}
+
+function drawFrequencySpectrum(heights) {
+
+    const canvas = document.getElementById("spectrum");
+    if (!canvas) return;
+
+    canvas.width = canvas.clientWidth;
+    canvas.height = 300;
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const differences = [];
+
+    for(let i = 1; i < heights.length; i++){
+        differences.push(Math.abs(heights[i]-heights[i-1]));
+    }
+
+    const bins = 10;
+    const spectrum = new Array(bins).fill(0);
+
+    const maxDiff = Math.max(...differences);
+
+    for(let d of differences){
+
+        let index = Math.floor(d/maxDiff*bins);
+
+        if(index >= bins) index = bins - 1;
+
+        spectrum[index]++;
+    }
+
+    const maxCount = Math.max(...spectrum);
+
+    ctx.fillStyle = "#10263d";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    const left = 60;
+    const right = 20;
+    const top = 45;
+    const bottom = 45;
+
+    const graphWidth = canvas.width-left-right;
+    const graphHeight = canvas.height-top-bottom;
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(left,top);
+    ctx.lineTo(left,top+graphHeight);
+    ctx.lineTo(left+graphWidth,top+graphHeight);
+    ctx.stroke();
+
+    const barWidth = graphWidth/bins;
+
+    for(let i=0;i<bins;i++){
+
+        const h = spectrum[i]/maxCount*graphHeight;
+
+        ctx.fillStyle="#FF9800";
+
+        ctx.fillRect(
+            left+i*barWidth+2,
+            top+graphHeight-h,
+            barWidth-4,
+            h
+        );
+    }
+
+    ctx.fillStyle="white";
+    ctx.font="bold 22px Arial";
+    ctx.textAlign="center";
+    ctx.fillText("Frequency Spectrum", canvas.width/2, 28);
+
+    ctx.font="16px Arial";
+    ctx.fillText("Terrain Detail Size (Low → High Frequency)",
+        canvas.width/2,
+        canvas.height-10
+    );
+
+    ctx.save();
+    ctx.translate(18, canvas.height/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText("Amount of Detail",0,0);
     ctx.restore();
 }
